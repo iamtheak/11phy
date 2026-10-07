@@ -1,0 +1,22 @@
+{
+  "name": "physics11-living-book",
+  "version": "1.0.0",
+  "description": "Interactive companion to Nepal Grade 11 Physics",
+  "scripts": {
+    "build": "esbuild app.jsx --bundle --minify --format=esm --jsx=automatic --outfile=dist/app.js",
+    "test": "node tests.mjs && node interaction-tests.mjs && node animation-tests.mjs && node electricity-tests.mjs && node optics-tests.mjs && node react-tests.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@chenglou/pretext": "^0.0.9",
+    "esbuild": "^0.28.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "linkedom": "^0.18.13"
+  }
+}

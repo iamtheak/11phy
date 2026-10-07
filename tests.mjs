@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';
+import {chapters,initial,extra,G,K} from './content.mjs';
+import {makeQuestion,checkAnswer,substitution} from './exercise.mjs';
+import {drawScene,drawGraph,liveSentence,fmt} from './canvas.mjs';
+let count=0;const near=(x,y,tol=1e-9)=>{assert.ok(Math.abs(x-y)<=Math.max(Math.abs(y)*tol,1e-25),`${x} ≠ ${y}`);count++};
+const all=chapters.flatMap(c=>c.labs),by=id=>all.find(l=>l.id===id),value=(id,s)=>by(id).compute({...initial(by(id)),...s});
+assert.equal(chapters.length,26);assert.equal(all.length,78);assert.equal(new Set(all.map(l=>l.id)).size,78);
+near(value('units',{}),20);near(value('uncertainty',{}),11000);near(value('vector',{theta:90}),10);near(value('vector',{a:5,b:5,theta:180}),0);near(value('dot',{theta:90}),0);near(value('components',{theta:90}),0);near(value('motion',{}),36);near(value('projectile',{}),400/9.8);near(value('relative',{}),10);near(value('newton',{}),4);near(value('incline',{}),0);near(value('incline',{theta:45,mus:0}),9.8/Math.sqrt(2));near(value('torque',{theta:180}),0);near(value('work',{theta:90}),0);near(value('energy',{}),36);near(value('collision',{}),2.4);near(value('circle',{}),25);near(value('angular',{}),6);near(value('gravity',{}),G*50);near(value('escape',{})/value('orbit',{h:0}),Math.sqrt(2));near(value('spring',{}),20);near(value('young',{}),1);near(value('stress',{}),100);near(value('temperature',{}),298.15);near(value('fahrenheit',{}),37);near(value('equilibrium',{}),50);near(value('expansion',{}),1.2);near(value('volume',{}),.36);near(value('thermalstress',{}),120);near(value('heat',{}),84000);near(value('latent',{}),334000);near(value('cooling',{}),20+60/Math.E);near(value('conduction',{}),200);near(value('radiation',{t:300,ta:300}),0);near(value('wien',{t:5800}),.4996158543103448);near(value('gas',{}),124.71693927);near(value('rms',{}),Math.sqrt(3*8.314462618*300/.028));near(value('mirror',{}),30);near(value('convexmirror',{}),-10);assert.equal(value('lens',{u:15,f:15}),Infinity);near(value('diverging',{}),-10);assert.ok(Number.isNaN(value('snell',{n1:1.5,n2:1,i:60})));near(value('critical',{}),41.810314895778596);near(value('depth',{}),2/1.33);near(value('minimum',{}),37.180755781458274);near(value('thinprism',{}),2.5);near(value('power',{}),5);near(value('dispersion',{}),.1);near(value('dispersive',{}),.02/.52);near(value('achromat',{}),-2.5);near(value('coulomb',{}),K*-6e-12);near(value('quantized',{}),-1.602176634e-18);near(value('field',{}),K*2e-6);near(value('platefield',{}),10000);near(value('flux',{theta:90}),0);near(value('potential',{}),K*2e-6);near(value('potentialenergy',{}),.001);near(value('gradient',{}),30);near(value('capenergy',{}),720);near(value('capseries',{}),20/3);near(value('ohm',{}),1.2);near(value('parallel',{}),12);near(value('cell',{}),1);near(value('nuclearradius',{}),1.2*Math.cbrt(56));near(value('levels',{}),-3.4);near(value('transition',{}),656.3869327058825);near(value('doping',{}),5e20);near(value('quarks',{}),1);near(value('quarks',{up:1}),0);near(value('hubble',{}),7000);near(value('redshift',{}),.1);
+// The tolerance must not accept arbitrary answers for microscopic quantities.
+assert.equal(checkAnswer(1.6e-19,'0'),false);assert.equal(checkAnswer(1.6e-19,'1.6e-19'),true);assert.equal(checkAnswer(0,''),false);assert.equal(checkAnswer(0,'0'),true);assert.equal(checkAnswer(Infinity,'infinity'),true);assert.equal(checkAnswer(NaN,'TIR'),true);assert.equal(checkAnswer(100,'120'),false);
+class MockContext{
+ measureText(text){return {width:[...text].length*7.5}}createLinearGradient(){return {addColorStop(){}}}
+ setLineDash(){}fillText(text,x,y){assert.ok(Number.isFinite(x)&&Number.isFinite(y),'nonfinite text position')}
+}
+for(let m of ['clearRect','fillRect','strokeRect','beginPath','closePath','moveTo','lineTo','arc','ellipse','rect','clip','fill','stroke','save','restore','translate','rotate','setTransform'])MockContext.prototype[m]=function(...args){for(let a of args)if(typeof a==='number')assert.ok(Number.isFinite(a),`nonfinite ${m}: ${args}`)};
+globalThis.OffscreenCanvas=class{getContext(){return new MockContext}};
+let scenarios=0,questions=0,draws=0;let ctx=new MockContext;
+for(let l of all){
+ assert.equal(typeof l.formula,'string');assert.ok(l.explain&&l.assumptions&&l.challenge);
+ const samples=[initial(l)];
+ for(let p of l.params){samples.push({...initial(l),[p.key]:p.min},{...initial(l),[p.key]:p.max})}
+ for(let i=0;i<20;i++)samples.push(makeQuestion(l).params);
+ for(let s of samples){let n=l.compute(s);assert.equal(typeof n,'number');assert.ok(!Number.isNaN(n)||['snell','prism'].includes(l.id),`unexpected NaN: ${l.id}`);assert.ok(Number.isFinite(n)||Number.isNaN(n)||['lens','mirror'].includes(l.id));assert.ok(liveSentence(l,s));assert.ok(substitution(l,s));extra(l,s).forEach(x=>assert.equal(typeof x[1],'number'));scenarios++;}
+ for(let i=0;i<12;i++){let q=makeQuestion(l),answer=Number.isNaN(q.expected)?'TIR':!Number.isFinite(q.expected)?'infinity':String(q.expected);assert.ok(checkAnswer(q.expected,answer));questions++;}
+ for(let s of samples.slice(0,1+2*l.params.length)){drawScene(ctx,l,s,1.4,false,false);drawScene(ctx,l,s,3.2,true,false);drawGraph(ctx,l,s,l.params[0].key,initial(l));draws+=3;}
+}
+let source=JSON.parse(fs.readFileSync('dist/book.json'));assert.equal(source.length,26);for(let c of source){assert.ok(c.text.length>500);assert.ok(c.questions.length>0);assert.equal(c.pdfPage,chapters[c.id-1].page+5);if(c.id===24)assert.ok(c.questions.every(q=>q.number>=18));}
+console.log(`PASS: ${count} reference/identity checks; ${scenarios} model scenarios; ${questions} generated answer checks; ${draws} Canvas API smoke checks; all 26 source mappings.`);
