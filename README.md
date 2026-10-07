@@ -2,11 +2,33 @@
 
 Interactive companion to the uploaded CDC Nepal Grade 11 Physics feedback copy (2024). 26 source chapters, 78 analytical laboratories, 78 generated numerical practice types, 26 conceptual checks, and a source exercise notebook. See PLAN.md for the chapter audit and limits.
 
-## Run and build
+## Run locally
 
-Node 24 was used. Install with `pnpm install --frozen-lockfile`, validate with `pnpm test`, bundle with `pnpm build`, and serve the `dist` directory with any static HTTP server. No API keys or backend are needed. Runtime assets, including Pretext and the uploaded PDF, are bundled locally.
+Install Node.js 24, pnpm, and Python 3. Open a terminal in the repository folder, then run:
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm run build
+python -m http.server 8000 --directory dist
+```
+
+Open **http://localhost:8000** in your browser. Keep the terminal running; press **Ctrl+C** to stop the server. On macOS/Linux, use `python3` instead of `python`. On Windows, `py` also works if `python` is unavailable.
+
+After editing `.jsx` or `.mjs` files, run `pnpm run build` in a second terminal and refresh the browser. CSS changes in `dist/style.css` only need a refresh. There is no `pnpm run dev` or automatic reload configured. Run `pnpm run test` to check the physics models and React interactions.
+
+If pnpm is unavailable, use `npx pnpm@9.15.4 install --frozen-lockfile`, then `npm run build`; start the Python server as above. If port 8000 is occupied, use `8001` in the server command and browser URL.
+
+No API keys or backend are needed. Runtime assets, including Pretext and the uploaded PDF, are bundled locally. Serve `dist/` over HTTP rather than opening `index.html` directly, so the textbook JSON can load.
 
 Progress and source exercise notes use browser localStorage. Students can export their chapter notes. This is a private study companion, not a teacher dashboard. Source exercise answers are printed excerpts, not independently verified solutions. Generated numerical problems are checked from separately implemented models.
+
+## Deploy to Vercel
+
+Push this repository to GitHub and import it as a new Vercel project. Use the repository root as the Root Directory and select **Other** as the Framework Preset. The checked-in `vercel.json` sets the install command to `pnpm install --frozen-lockfile`, the build command to `pnpm run build`, and the Output Directory to `dist`. Node.js 24.x is specified in `package.json`. No environment variables are required.
+
+Before deploying, run `pnpm test` and `pnpm build`. Keep the retained files in `dist/` committed: `index.html`, `style.css`, `book.json`, and `source.pdf`. The build replaces only `dist/app.js`. Navigation uses hash routes, so no SPA rewrite is needed.
+
+After deployment, verify the homepage, a chapter lab, the source reader/PDF, and the phone layout. Notes and progress are stored per browser and origin; localhost notes do not automatically transfer to the deployed domain.
 
 ## Files
 

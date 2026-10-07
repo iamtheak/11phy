@@ -10,10 +10,12 @@ Use Node.js 24 and pnpm. From this folder:
 pnpm install --frozen-lockfile
 pnpm test
 pnpm build
-python3 -m http.server 8000 --directory dist
+python -m http.server 8000 --directory dist
 ```
 
 Open http://localhost:8000 in your browser. Stop the server with Ctrl+C. After editing source, run `pnpm build` and refresh the page. The site uses hash routes, so it runs on any static hosting service.
+
+Use `python3` on macOS/Linux or `py` on Windows if `python` is unavailable. See README.md's **Run locally** section for prerequisites, troubleshooting, and editing instructions.
 
 ## Main files
 
