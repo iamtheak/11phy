@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import {chapters,initial} from './content.mjs';
-import {handlesFor,normalizedPatch,scenePoint,freeFall} from './interactions.mjs';
+import {handlesFor,normalizedPatch,scenePoint,freeFall,quarkPosition} from './interactions.mjs';
 const labs=chapters.flatMap(c=>c.labs),by=id=>labs.find(l=>l.id===id);
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 let supported=0,checks=0;
+for(const [x,y] of [[255,180],[1000,1000],[-100,-100],[255,125]]){
+ const p=quarkPosition(x,y);assert.ok(Math.hypot(p.x-255,p.y-180)<=65+1e-8);
+}
 for(const l of labs){const s=initial(l);for(const h of handlesFor(l,s)){
   supported++;const p=normalizedPatch(l,h.patch(h.x,h.y));for(const key of h.keys)near(p[key],s[key]);
   for(const [x,y] of [[-100,-100],[840,370],[10000,10000]]){const patch=normalizedPatch(l,h.patch(x,y));for(const [key,value] of Object.entries(patch)){let p=l.params.find(p=>p.key===key);assert.ok(value>=p.min&&value<=p.max);assert.ok(Number.isFinite(value));checks++}}

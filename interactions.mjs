@@ -1,4 +1,8 @@
 const rad = x => x * Math.PI / 180;
+export function quarkPosition(x,y){
+ const dx=x-255,dy=y-180,distance=Math.hypot(dx,dy),scale=distance>65?65/distance:1;
+ return {x:255+dx*scale,y:180+dy*scale};
+}
 export const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 export function normalize(lab, key, value) {
   const p = lab.params.find(p => p.key === key);

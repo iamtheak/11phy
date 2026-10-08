@@ -1,7 +1,7 @@
 /* Physics 11: Impeccable layout, typeset and polish pass. */
 :root {
-  --ink:#173f37; --muted:#52675b; --accent:#176c58; --gold:#946a2f;
-  --paper:#fcfcf8; --surface:#ffffff; --soft:#edf3e9; --line:#d8e2d5;
+  --ink:#263f38; --muted:#59685f; --accent:#356b59; --gold:#946a2f;
+  --paper:#faf9f5; --surface:#fffefa; --soft:#f0f4ed; --line:#dde3da;
   --sidebar:264px; --radius:14px;
   --body:1rem; --small:.875rem; --label:.8125rem;
   --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
@@ -38,7 +38,7 @@ p {line-height:1.75;max-width:72ch}
 small,.helper,.graph-caption,.session-note {font-size:var(--small);color:var(--muted);line-height:1.6}
 .field-label {font-size:var(--label);font-weight:600;color:var(--muted)}
 .shell {min-height:100vh;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr)}
-.sidebar {position:fixed;inset:0 auto 0 0;z-index:40;width:var(--sidebar);padding:32px 16px 20px;background:#f1f4ec;border-right:1px solid var(--line);display:flex;flex-direction:column}
+.sidebar {position:fixed;inset:0 auto 0 0;z-index:40;width:var(--sidebar);padding:32px 16px 20px;background:#f3f4ef;border-right:1px solid var(--line);display:flex;flex-direction:column}
 .brand {display:flex;gap:12px;align-items:center;margin:0 12px 28px}
 .brand-mark {font-family:Georgia,serif;font-size:36px;line-height:1;color:var(--accent)}
 .brand strong {font-family:Georgia,serif;font-size:25px;font-weight:400;display:block;line-height:1.2}
@@ -47,12 +47,12 @@ small,.helper,.graph-caption,.session-note {font-size:var(--small);color:var(--m
 input::placeholder,textarea::placeholder {color:#637461;opacity:1}
 .side-top {display:flex;gap:8px;margin:12px 0}
 .side-top button {flex:1;font-size:var(--label);padding:8px;background:transparent}
-.sandbox-nav {justify-content:flex-start;font-size:var(--label);background:#e6efdf;margin-bottom:12px}
+.sandbox-nav {justify-content:flex-start;font-size:var(--label);background:transparent;border-color:transparent;margin-bottom:4px}
 .chapters {flex:1;overflow:auto;overscroll-behavior:contain;padding-right:4px;scrollbar-width:thin}
 .group-label {font-size:12px;font-weight:600;margin:24px 12px 8px;color:#596e53}
 .chapter-link {display:flex;width:100%;justify-content:flex-start;gap:10px;text-align:left;padding:10px 12px;border:0;background:transparent;font-size:var(--label);min-height:44px}
 .chapter-link .n {min-width:20px;color:#5e7358;font-variant-numeric:tabular-nums}
-.chapter-link.selected {background:#dae8d2;color:#174c35;font-weight:600}
+.chapter-link.selected {background:#e4ebe0;color:#174c35;font-weight:600}
 .done-dot {margin-left:auto;color:var(--accent)}
 .side-foot {font-size:12px;color:var(--muted);line-height:1.7;margin:20px 10px 0;padding-top:16px;border-top:1px solid var(--line)}
 .progress-track {height:5px;border-radius:4px;background:#d6e2d0;margin:10px 0;overflow:hidden}
@@ -62,7 +62,7 @@ input::placeholder,textarea::placeholder {color:#637461;opacity:1}
 .breadcrumb {display:flex;align-items:center;gap:12px;min-width:0}
 .breadcrumb>span:last-child {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .menu {display:none}
-.content {max-width:1200px;padding:48px clamp(24px,4vw,56px) 80px;margin:auto}
+.content {max-width:1200px;padding:56px clamp(24px,4vw,56px) 88px;margin:auto}
 .intro {max-width:78ch}
 .intro>p {font-size:var(--body);color:var(--muted);margin-bottom:20px}
 .meta {display:flex;gap:8px 20px;flex-wrap:wrap;color:var(--muted);font-size:var(--label);margin:20px 0 28px}
@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder {color:#637461;opacity:1}
 .canvas-toolbar #play:hover {background:#23604f}
 .canvas-toolbar .helper {font-variant-numeric:tabular-nums;margin-right:auto}
 .canvas-toolbar button[aria-pressed=true]:not(#play) {background:var(--soft);border-color:#91b086}
-.drag-hint {display:flex;align-items:flex-start;gap:10px;font-size:var(--small);color:#365c43;background:#eff5eb;padding:16px 24px;margin:0;max-width:none;line-height:1.65}
+.drag-hint {display:flex;align-items:flex-start;gap:10px;font-size:var(--small);color:#365c43;background:var(--soft);padding:16px 24px;margin:0;max-width:none;line-height:1.65}
 .drag-hint .icon {margin-top:3px}
 .control-panel {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 32px;padding:28px 24px;border-top:1px solid var(--line)}
 .control {min-width:0}
@@ -102,7 +102,7 @@ input::placeholder,textarea::placeholder {color:#637461;opacity:1}
 .number-wrap span {min-width:28px;font-size:var(--label);color:var(--muted)}
 .control input[type=range] {display:block;width:100%;height:28px;accent-color:var(--accent);cursor:pointer;margin:0}
 .range-bounds {display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px;font-variant-numeric:tabular-nums}
-.equation-box {padding:24px;background:#f0f5eb;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:24px}
+.equation-box {padding:24px;background:var(--soft);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:24px}
 .formula {font-family:Georgia,serif;font-size:clamp(1.125rem,2vw,1.5rem);line-height:1.55;margin-top:8px;overflow-wrap:anywhere}
 .output {text-align:right;min-width:130px}
 .output .value {font-family:Georgia,serif;font-size:2rem;line-height:1.3;margin-top:8px;color:var(--accent);font-variant-numeric:tabular-nums}
@@ -129,7 +129,7 @@ select {font-size:var(--small);border:1px solid var(--line);border-radius:8px;pa
 .assumption p {color:#615c3b}
 .chapter-footer {border-top:1px solid var(--line);margin-top:40px;padding-top:24px;display:flex;gap:12px;justify-content:space-between}
 .mark-button.complete {background:#e4efdb;color:#285835}
-.home-hero {display:grid;grid-template-columns:minmax(0,1.45fr) minmax(230px,1fr);gap:48px;padding:16px 0 40px;align-items:center}
+.home-hero {display:grid;grid-template-columns:minmax(0,1.45fr) minmax(230px,1fr);gap:56px;padding:24px 0 48px;align-items:center}
 .home-hero h1 {font-size:clamp(2.5rem,4vw,3.75rem);line-height:1.12;margin-bottom:24px}
 .home-hero p {font-size:var(--body);color:var(--muted);max-width:45ch}
 .hero-actions {display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:28px}
@@ -137,7 +137,7 @@ select {font-size:var(--small);border:1px solid var(--line);border-radius:8px;pa
 .start-experiments {border-left:1px solid var(--line);padding-left:32px}
 .start-experiments h2 {font-family:inherit;font-size:var(--small);font-weight:600;margin-bottom:12px}
 .start-experiments button {display:flex;justify-content:space-between;width:100%;text-align:left;padding:16px 0;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;gap:16px}
-.start-experiments button:hover {color:var(--accent);background:transparent}
+.start-experiments button:hover {color:var(--accent);background:var(--soft)}
 .start-experiments strong {font-size:1.0625rem;font-weight:500;display:block}
 .start-experiments small {display:block;margin-top:5px;font-size:var(--label);line-height:1.5}
 .book-summary {border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;font-size:var(--label);color:var(--muted);max-width:none;margin:0 0 48px}
@@ -149,7 +149,7 @@ select {font-size:var(--small);border:1px solid var(--line);border-radius:8px;pa
 .catalog-group>h3 {margin:12px 0;color:var(--muted);font-size:var(--small);font-weight:500}
 .chapter-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
 .chapter-tile {min-height:88px;display:flex;align-items:center;justify-content:flex-start;gap:14px;text-align:left;padding:16px 8px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
-.chapter-tile:hover {background:#eef4e8;border-color:var(--line)}
+.chapter-tile:hover {background:var(--soft);border-color:var(--line)}
 .chapter-number {font-family:Georgia,serif;font-size:1.25rem;color:#637759;min-width:26px;font-variant-numeric:tabular-nums}
 .chapter-description {flex:1;min-width:0}
 .chapter-description strong {display:block;font-family:Georgia,serif;font-size:1.2rem;line-height:1.3;font-weight:400}
@@ -249,3 +249,57 @@ html{scroll-padding-top:88px}body{overflow-wrap:break-word}button,input,select,t
 @media(max-width:360px){.lab-tabs{grid-template-columns:1fr}.control label{flex-direction:column}.number-wrap{width:100%;justify-content:flex-end}.section-row>button{width:100%}.metric-strip{gap:16px 8px}}
 @media(min-width:761px) and (max-width:1024px){.shell{display:block}.main{width:100%}.sidebar{height:100dvh;width:320px;transform:translateX(-100%);transition:transform .2s ease-out;overflow:auto;overscroll-behavior:contain}.sidebar.open{transform:translateX(0)}.sidebar .chapters{overflow:visible;flex:none}.nav-close{display:inline-flex;align-self:flex-end;min-height:48px}.nav-backdrop{display:block;position:fixed;inset:0;background:#173f3777;z-index:35;border:0;border-radius:0;touch-action:none}.menu{display:inline-flex;min-width:48px;min-height:48px}}
 @media(max-width:760px){.energy-panel text{font-size:24px}.transient-panel text{font-size:22px}.optics-card text{font-size:16px}.optics-card [data-testid=optics-object] text,.optics-card [data-testid=optics-formed-image] text{font-size:inherit}}
+
+/* Calm study surfaces: color recedes while the experiment stays immediate. */
+.quark-play [role=button]:focus-visible {outline:none}
+.quark-play [role=button]:focus-visible circle:nth-child(2) {stroke:#946a2f;stroke-width:4}
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+ .content h1 {transition:color .2s ease-out,transform .2s cubic-bezier(.16,1,.3,1);transform:translate(var(--heading-x,0px),var(--heading-y,0px))}
+ .content h1:hover {color:var(--accent)}
+ .content h1 em {text-decoration:underline;text-decoration-color:transparent;text-underline-offset:.14em;transition:text-decoration-color .2s ease-out}
+ .content h1:hover em {text-decoration-color:var(--line)}
+}
+button {transition:background-color .18s cubic-bezier(.16,1,.3,1),border-color .18s cubic-bezier(.16,1,.3,1),color .18s cubic-bezier(.16,1,.3,1)}
+button.primary:hover,.canvas-toolbar #play:hover {background:#355b4e}
+button.active {background:#e7eee3;border-color:#a8bba1;color:var(--ink)}
+.sandbox-nav:hover {border-color:var(--line)}
+.sandbox-nav.active {background:#e4ebe0;border-color:transparent}
+.topbar {background:var(--paper)}
+.meta {gap:8px 16px}
+.intro>p {max-width:65ch;line-height:1.8}
+.lab-tabs {gap:10px;margin-bottom:24px}
+.lab-tabs button {background:transparent}
+.lab-tabs button.active {background:#e7eee3}
+.lab-header {background:var(--surface);padding-block:24px}
+.canvas-toolbar {background:var(--surface)}
+.control-panel {background:var(--surface);gap:32px}
+.number-wrap input {background:var(--paper)}
+.playback-controls {background:var(--paper)}
+.source-reader pre {color:var(--ink);line-height:1.9}
+.source-reader .search {background:var(--surface)}
+.source-reader .book-note {margin-bottom:32px}
+.book-summary {border-top:0;padding-top:0;line-height:1.9}
+.start-experiments button {padding-inline:12px}
+.start-experiments h2 {padding-inline:12px}
+.chapter-tile>.icon,.start-experiments button>.icon {color:var(--muted)}
+.chapter-tile:hover>.icon,.start-experiments button:hover>.icon {color:var(--accent)}
+.chapter-description small {font-size:var(--label);line-height:1.6}
+.catalog-group>h3 {font-weight:600}
+@media(max-width:1024px){
+ .sidebar {transition:transform .28s cubic-bezier(.16,1,.3,1)}
+}
+@media(max-width:760px){
+ .content {padding:32px 20px calc(48px + env(safe-area-inset-bottom))}
+ .topbar {background:var(--paper)}
+ .home-hero {padding-top:8px;gap:32px}
+ .intro>p {line-height:1.75}
+ .start-experiments button,.start-experiments h2 {padding-inline:0}
+ .lab-tabs {gap:8px;margin-bottom:20px}
+ .lab-header {padding:16px}
+ .control-panel {gap:24px}
+ .nav-close {background:#f3f4ef}
+ .source-reader pre {line-height:1.85}
+}
+@media(prefers-reduced-motion:reduce){
+ button,.sidebar {transition:none}
+}

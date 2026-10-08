@@ -4,11 +4,12 @@ import {chapters,initial,extra} from './content.mjs';
 import {drawScene,drawGraph,fmt,liveSentence,isAnimated} from './canvas.mjs';
 import {makeQuestion,checkAnswer,substitution} from './exercise.mjs';
 import {usePhone,pointInView} from './responsive.jsx';
-import {OpticsImagePanel,OpticsSandbox} from './optical-images.jsx';
+import {OpticsImagePanel,OpticsSandbox,OpticsPictureProvider} from './optical-images.jsx';
 import {imageOpticsIds} from './optics.mjs';
 import {dcIds,dcState} from './electricity.mjs';
 import {ElectricitySandbox} from './electrical.jsx';
 import {animationPeriod,animationReadout} from './animation.mjs';
+import {QuarkPlay} from './quark-play.jsx';
 import {handlesFor,normalizedPatch,scenePoint,freeFall,clamp} from './interactions.mjs';
 
 function Icon({name,size=18}){const paths={menu:'M4 6h16M4 12h16M4 18h16',move:'M12 3v18M3 12h18M8 7l4-4 4 4M8 17l4 4 4-4M7 8l-4 4 4 4M17 8l4 4-4 4',play:'M8 5l11 7-11 7Z',pause:'M8 5v14M16 5v14',reset:'M4 10a8 8 0 1 1 1 8M4 4v6h6',arrow:'M5 12h14M13 6l6 6-6 6',book:'M12 5v15M3 4l9 1 9-1v15l-9 1-9-1Z'};return <svg className="icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]||paths.arrow}/></svg>}
@@ -24,7 +25,7 @@ function setupCanvas(canvas,w,h){let dpr=Math.min(devicePixelRatio||1,2);canvas.
 function Canvas({id,width,height,draw,label}){
   const ref=useRef(null),ctx=useRef(null);
   useLayoutEffect(()=>{ctx.current=setupCanvas(ref.current,width,height)},[width,height]);
-  useLayoutEffect(()=>{draw(ctx.current)},[draw]);
+  useLayoutEffect(()=>{draw(ctx.current)},[draw,width,height]);
   return <canvas id={id} ref={ref} role="img" aria-label={label}/>;
 }
 export function DragHandles({lab,params,time,setParams,onGrab,onRelease}){
@@ -62,7 +63,7 @@ function Lab({chapter,lab,params,setParams,baseline,setBaseline,hide,setHide}){
   return <>
     <div className="section-row"><h2>The experiment</h2><button id="to-practice" onClick={()=>routeTo(labRoute(chapter,lab,'practice'))}>Try a question →</button></div><LabTabs chapter={chapter} lab={lab} pane="lab"/>
     <section className="lab-card"><header className="lab-header"><h3>{lab.title}</h3><span className="status">{handles.length?'Drag to explore':'Live model'}</span></header>
-      <div className="canvas-wrap"><div className="scene-stage"><Canvas id="scene" width={phone?530:840} height={370} label={`${lab.title} visualization. Results and explanation follow below.`} draw={c=>drawScene(c,lab,params,time,view3d,hide,{closed,carrier})}/><DragHandles lab={lab} params={params} time={time} setParams={setParams} onGrab={grab} onRelease={release}/></div>
+      <div className="canvas-wrap"><div className="scene-stage"><Canvas id="scene" width={phone?530:840} height={370} label={`${lab.title} visualization. Results and explanation follow below.`} draw={c=>drawScene(c,lab,params,time,view3d,hide,{closed,carrier})}/>{lab.id==='quarks'&&<QuarkPlay up={params.up}/>}<DragHandles lab={lab} params={params} time={time} setParams={setParams} onGrab={grab} onRelease={release}/></div>
         <div className="canvas-toolbar">{isAnimated(lab)?<><button id="play" aria-pressed={running} onClick={()=>setRunning(!running)}><Icon name={running?'pause':'play'}/>{running?'Pause':'Play'}</button><button id="restart" onClick={()=>setTime(0)}><Icon name="reset"/>Restart</button><span id="animation-time" className="helper">Animation: {time.toFixed(1)} s</span></>:<span className="helper">Change the values to explore</span>}<button id="predict" aria-pressed={hide} onClick={()=>setHide(!hide)}>{hide?'Reveal outcome':'Prediction mode'}</button>{['orbit','circle'].includes(lab.kind)&&<button id="projection" aria-pressed={view3d} onClick={()=>setView3d(!view3d)}>{view3d?'Plan view':'Perspective view'}</button>}</div>
       </div>
       {dc&&<div className="circuit-controls"><button id="circuit-switch" aria-pressed={closed} onClick={()=>{setClosed(!closed);setTime(0)}}>{closed?'Open switch':'Close switch'}</button><label htmlFor="carrier-mode">Show motion<select id="carrier-mode" value={carrier} onChange={e=>{setCarrier(e.target.value);setTime(0)}}><option value="conventional">Conventional current · gold</option><option value="electrons">Electron drift · blue</option></select></label><span className="helper">Play to follow the charge. Marker speed is proportional to current; it is not a measured drift velocity.</span></div>}
@@ -147,7 +148,21 @@ function Home({book,loading,saved}){const topics=[...new Set(chapters.map(c=>c.t
   <div className="chapter-catalog">{topics.map(topic=><section className="catalog-group" key={topic}><h3>{topic}</h3><div className="chapter-grid">{chapters.filter(c=>c.topic===topic).map(c=><button className="chapter-tile" key={c.id} data-ch={c.id} onClick={()=>routeTo(`chapter/${c.id}`)}><span className="chapter-number">{String(c.id).padStart(2,'0')}</span><span className="chapter-description"><strong>{c.title}</strong><small>{c.labs.length} experiments · source p. {c.page}{saved.read[c.id]?' · ✓ read':''}</small></span><Icon name="arrow"/></button>)}</div></section>)}</div>
   <div className="split"><div className="card"><h3>Predict. Change. Understand.</h3><p>Drag the rings in supported diagrams, or use their sliders. Try prediction mode, capture a baseline, and compare two scenarios.</p></div><div className="card assumption"><h3>A companion to the source book</h3><p>Read the source chapters and exercises here, or open the PDF for diagrams and exact notation. Models explain their assumptions; written exercises use self-assessment.</p></div></div></>}
 function Plan(){return <><h1>Every chapter.<br/><em>A way to explore it.</em></h1><div className="page-banner"><a href="plan.md" download>Download the full plan ↓</a></div><p className="plan-intro">26 chapters, each with three analytical laboratories, a live graph, practice and its source reading. The book is built with React components, Canvas 2D and Pretext text layout.</p><div className="book-note">Direct manipulation: vector tips, projectile launch velocity, spring mass, optical objects, incident rays, charge separation, torque lever, capacitor plate and flux normal. The mass drop sandbox demonstrates free fall and energy. The electricity sandbox shows capacitor charging and discharging; DC labs animate branch current and reverse electron drift. Other models use linked parameter controls.</div><div className="book-note">Source audit: Chapter 25 also contains semiconductors. Chapter 26 is titled “Solids” but contains particles and cosmology. Numbering is preserved.</div><div className="plan-table"><table><thead><tr><th>Chapter / page</th><th>Implemented interactions</th><th>What stays reading or practical</th></tr></thead><tbody>{chapters.map(c=><tr key={c.id}><td><a href={`#chapter/${c.id}`}>{c.id}. {c.title}</a><br/><span className="helper">Source p. {c.page}</span></td><td>{c.labs.map(l=><div className="lab-plan" key={l.id}><strong>{l.title}</strong><br/><span className="helper">{l.formula}{handlesFor(l,initial(l)).length?' · draggable diagram':''}</span></div>)}</td><td>{c.limits}</td></tr>)}</tbody></table></div><div className="split"><div className="card"><h3>Checked practice</h3><p>Numerical questions use frozen values, hints, worked substitutions and 1% tolerance. One conceptual multiple-choice check accompanies each chapter.</p></div><div className="card assumption"><h3>Source exercise notebook</h3><p>Questions accept saved working and self-assessment. Printed-answer excerpts are revealed where available. They are not independently verified or automatically graded.</p></div></div><div className="card"><h3>Implementation boundaries</h3><p>Analytical equations drive the models. Dragging updates their parameters; it does not turn every diagram into a rigid-body simulation. Real measurement, fracture, fluid flow, optical aberration and microscopic quantum dynamics remain reading or physical activities.</p></div></>}
-export function App(){
+export function App(){return <OpticsPictureProvider><BookApp/></OpticsPictureProvider>}
+function BookApp(){
+  useEffect(()=>{
+    let active=null;
+    const clear=()=>{if(active){active.style.removeProperty('--heading-x');active.style.removeProperty('--heading-y');active=null}};
+    const move=e=>{
+      if(!matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches){clear();return}
+      const heading=e.target.closest?.('.content h1');if(heading!==active)clear();if(!heading)return;
+      active=heading;const rect=heading.getBoundingClientRect();
+      heading.style.setProperty('--heading-x',`${clamp((e.clientX-rect.left)/rect.width-.5,-.5,.5)*4}px`);
+      heading.style.setProperty('--heading-y',`${clamp((e.clientY-rect.top)/rect.height-.5,-.5,.5)*2}px`);
+    };
+    document.addEventListener('pointermove',move);document.addEventListener('pointerleave',clear);
+    return ()=>{clear();document.removeEventListener('pointermove',move);document.removeEventListener('pointerleave',clear)};
+  },[]);
   const [hash,setHash]=useState(location.hash),[saved,setSaved]=useState(readSaved),[search,setSearch]=useState(''),[menu,setMenu]=useState(false),[book,setBook]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[storageError,setStorageError]=useState(false),[mobile,setMobile]=useState(()=>matchMedia('(max-width: 1024px)').matches);
   useEffect(()=>{const query=matchMedia('(max-width: 1024px)'),update=()=>setMobile(query.matches);query.addEventListener?.('change',update);return ()=>query.removeEventListener?.('change',update)},[]);
   useEffect(()=>{if(!mobile||!menu)return;const previous=document.body.style.overflow;document.body.style.overflow='hidden';const close=document.querySelector('.nav-close');close?.focus();function trap(e){if(e.key!=='Tab')return;const items=[...document.querySelectorAll('#sidebar button:not([disabled]),#sidebar a,#sidebar input')];const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}window.addEventListener('keydown',trap);return ()=>{document.body.style.overflow=previous;window.removeEventListener('keydown',trap);document.getElementById('menu')?.focus()}},[mobile,menu]);

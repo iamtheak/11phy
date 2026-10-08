@@ -1,6 +1,6 @@
 import {prepareWithSegments,layoutNextLineRange,materializeLineRange,layoutWithLines} from '@chenglou/pretext';
 import {extra} from './content.mjs';
-import {animationFrame,newAnimatedIds} from './animation.mjs';
+import {animationFrame,newAnimatedIds,gasParticleFrame,thermalVisual} from './animation.mjs';
 import {drawDC,dcIds} from './electricity.mjs';
 import {lensOutline,mirrorPoints} from './optics.mjs';
 import {opticalScale} from './interactions.mjs';
@@ -37,7 +37,7 @@ export function liveSentence(l,s){let v=l.compute(s),description=`${l.result} is
  if(l.id==='radiation')description=`Net power is ${fmt(v)} W: ${v<0?'energy enters the surface':v>0?'energy leaves the surface':'radiative equilibrium'}.`;
  return description;
 }
-export const isAnimated = l => newAnimatedIds.has(l.id) || ['projectile','circle','orbit','spring','motion','relative','gas','universe','measure'].includes(l.kind) || (l.kind==='circuit' && l.id!=='capseries') || l.id==='redshift';
+export const isAnimated = l => newAnimatedIds.has(l.id) || ['projectile','circle','orbit','spring','motion','relative','gas','universe','measure','heat'].includes(l.kind) || (l.kind==='circuit' && l.id!=='capseries') || l.id==='redshift';
 
 function glassShape(c,convex,cx,cy,height){const points=lensOutline(convex,cx,cy,height);c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fillStyle='rgba(148,202,212,.4)';c.fill();c.strokeStyle='#527f7c';c.lineWidth=2;c.stroke()}
 function curvedMirror(c,concave,cx,cy,height){const points=mirrorPoints(concave,cx,cy,height);for(const offset of [6,0]){c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x+offset,y):c.moveTo(x+offset,y));c.strokeStyle=offset?'#bdcec6':'#527f7c';c.lineWidth=offset?4:3;c.stroke()}}
@@ -95,17 +95,44 @@ export function drawScene(c,l,s,time=0,view3d=false,hide=false,electrical={}){
   }
   else{line(c,50,255,470,255,'#829c91',3);box(c,190,190,70,65,'#d9a955');let angle=kind==='work'?rad(s.theta):0,force=s.f??s.v??10;arrow(c,225,185,225+clamp(force*2,-140,150)*Math.cos(angle),185-110*Math.sin(angle),'#117c72','F');tag(c,'Schematic · sizes and arrows are illustrative',65,330)}
  }else if(l.id==='thermalstress'){
-  box(c,75,100,30,160,'#839c8d');box(c,415,100,30,160,'#839c8d');box(c,105,160,310,35,'#c7decf');arrow(c,150,145,250,145,'#ce9d56');arrow(c,370,145,270,145,'#ce9d56');tag(c,'Fixed supports prevent expansion',110,60);tag(c,`Compressive stress ${fmt(v)} MPa`,120,325);
+  const f=animationFrame(l,s,time),length=90*Math.tanh(f.current/150);
+  box(c,75,100,30,160,'#839c8d');box(c,415,100,30,160,'#839c8d');box(c,105,160,310,35,`hsl(${130-f.drive} 28% 75%)`);
+  if(length>0){arrow(c,140,140,140+length,140,'#b2823f');arrow(c,380,140,380-length,140,'#b2823f')}
+  tag(c,'Fixed supports prevent expansion',110,60);if(!hide)tag(c,`Compressive stress now ${fmt(f.current)} MPa`,80,325);
  }else if(['wire','expansion'].includes(kind)){
-  let delta=kind==='expansion'?clamp(Math.abs(v)*12,0,120):clamp(Math.abs(v)*.5,0,100);box(c,75,145,260,35,'#a7c6b7');box(c,335,145,delta,35,'#d9a955');line(c,335,125,335,210,'#7d9e8c',1,[5,5]);arrow(c,335+delta,160,440,160,'#117c72','load / expansion');tag(c,kind==='wire'?'Uniform wire · deformation exaggerated':'Original size + exaggerated expansion',55,320);tag(c,`change / stress ${fmt(v)} ${l.unit}`,80,90);
+  const f=animationFrame(l,s,time),delta=90*Math.tanh(l.id==='stress'?f.strain*150:f.current/(l.id==='volume'?2:1));
+  if(l.id==='volume'){
+   const side=130+delta;box(c,150,240-side,side,side,'#c7decf');c.strokeStyle='#72978a';c.strokeRect(150,110,130,130);tag(c,'Outline: original volume',150,275);
+  }else{box(c,75,145,260,35,'#a7c6b7');box(c,335,145,delta,35,'#d9a955');line(c,335,125,335,210,'#7d9e8c',1,[5,5]);if(f.drive>0)arrow(c,335+delta,160,Math.min(495,365+delta),160,'#117c72')}
+  tag(c,kind==='wire'?'Load increases · deformation exaggerated':'Heating increases · deformation exaggerated',45,320);if(!hide)tag(c,`${l.result} now ${fmt(f.current)} ${l.unit}`,45,65);
  }else if(['thermometer','mixing','heat','phase','cooling','conduction','radiation'].includes(kind)){
   if(kind==='conduction'){box(c,65,90,80,170,'#e1aa62');box(c,365,90,80,170,'#85b0bc');let gradient=c.createLinearGradient(150,0,360,0);gradient.addColorStop(0,'#eac999');gradient.addColorStop(1,'#adcfd4');box(c,150,90,210,170,gradient);if(s.dt>0)for(let y=120;y<260;y+=45)arrow(c,190,y,320,y,'#117c72');tag(c,s.dt>0?'HOT':'Equal T',75,70);tag(c,s.dt>0?'COLD':'Equal T',380,70);if(s.dt>0){let speed=20+Math.min(100,Math.log1p(v)*12);for(let i=0;i<8;i++)circle(c,155+((time*speed+i*23)%195),115+(i%4)*38,5,'#d5a155')}tag(c,'Steady heat flow · marker speed schematic',55,330)}
-  else if(kind==='mixing'){for(let i=0;i<2;i++){let t=i?s.t2:s.t1;box(c,85+i*235,115,120,140,`hsl(${200-t*1.7} 38% 70%)`);tag(c,`${fmt(t)}°C`,105+i*235,100)}arrow(c,210,180,320,180);tag(c,`equilibrium ${fmt(v)}°C`,150,310)}
-  else if(kind==='phase'){box(c,160,90,180,190,'#c8e0e3');for(let i=0;i<Math.round((1-s.fraction)*18);i++)box(c,170+(i%5)*31,250-Math.floor(i/5)*32,25,25,'#f4fbfc');tag(c,'Ice + water at 0°C',170,65);tag(c,`${fmt(s.fraction*100)}% melted`,180,315)}
+  else if(kind==='mixing'){
+   const f=animationFrame(l,s,time);
+   for(let i=0;i<2;i++){const t=i?f.t2:f.t1;box(c,65+i*270,115,120,140,`hsl(${210-t*1.95} 45% 67%)`);tag(c,`${fmt(t)} °C`,75+i*270,95);box(c,65+i*270,255-t,12,t,'#356b59')}
+   if(s.t1!==s.t2&&f.fraction<1){const direction=s.t1>s.t2?1:-1;arrow(c,direction>0?200:320,180,direction>0?320:200,180);for(let i=0;i<3;i++)circle(c,200+((time*35+i*40)%120)*(direction>0?1:-1)+(direction>0?0:120),180,4,'#b2823f')}
+   tag(c,`Equilibrium ${fmt(v)} °C · energy conserved`,70,310);tag(c,'Illustrative approach; transfer rate not modeled',55,340);
+  }
+  else if(kind==='heat'||kind==='cooling'){
+   const state=thermalVisual(l,s,time);
+   box(c,160,125,190,160,state.color);
+   box(c,390,80,18,210,'#dce9e2');const gauge=clamp(state.temperature/100,0,1)*210;box(c,393,290-gauge,12,gauge,state.color);tag(c,'100 °C',418,85);tag(c,'0 °C',418,290);
+   line(c,155,80,155,290,'#527f7c',3);line(c,355,80,355,290,'#527f7c',3);line(c,155,290,355,290,'#527f7c',3);
+   tag(c,`${fmt(state.temperature)} °C`,220,60,'#173f37');
+   if(state.boiling){
+    for(let i=0;i<12;i++){const progress=(time*.6+i/12)%1;circle(c,177+(i*37)%157,276-progress*140,3+progress*4,'#fdfbf1',false)}
+    tag(c,'Water boiling cue at 100 °C (standard pressure)',40,325);
+    tag(c,'Q = mcΔT omits phase change; bubbles schematic',40,348);
+   }else{
+    tag(c,kind==='cooling'?'Warm → cool color follows current temperature':'Color follows temperature · reference starts at 20 °C',40,325);
+    if(kind==='cooling')tag(c,`Replay: ${fmt(animationFrame(l,s,time).t)} / ${fmt(s.t)} min`,40,348);
+   }
+  }
+  else if(kind==='phase'){const f=animationFrame(l,s,time),size=25*Math.sqrt(1-f.melted);box(c,160,90,180,190,'#c8e0e3');for(let i=0;i<18;i++)box(c,170+(i%5)*31+(25-size)/2,250-Math.floor(i/5)*32+(25-size)/2,size,size,'#f4fbfc');tag(c,'Ice + water at 0 °C',170,65);if(!hide){tag(c,`${fmt(f.melted*100)}% melted · ${fmt(f.heat)} J absorbed`,80,315)}tag(c,'Heat changes phase while temperature stays fixed',45,345)}
   else if(kind==='radiation'){circle(c,255,180,60,'#d5a15b');for(let i=0;i<12;i++){let a=i*Math.PI/6,x=255+70*Math.cos(a),y=180+70*Math.sin(a),X=255+105*Math.cos(a),Y=180+105*Math.sin(a);v>=0?arrow(c,x,y,X,Y,'#d49a4d'):arrow(c,X,Y,x,y,'#d49a4d')}if(v!==0)for(let i=0;i<12;i++){let a=i*Math.PI/6,r=v>0?65+(time*30%80):145-(time*30%80);circle(c,255+r*Math.cos(a),180+r*Math.sin(a),4,'#d49a4d')}tag(c,'Net exchange · marker speed schematic',95,320)}
   else{let temp=kind==='thermometer'?(s.c??v):kind==='cooling'?animationFrame(l,s,time).temperature:20+(s.dt||0);box(c,226,60,35,230,'#dce9e2');let f=clamp((temp+50)/200,.02,1);box(c,233,285-f*210,21,f*210,'#d19a52');circle(c,244,295,24,'#d19a52');if(!hide)tag(c,`${fmt(temp)} °C`,300,140);if(kind==='cooling')tag(c,`replay ${fmt(animationFrame(l,s,time).t)} / ${fmt(s.t)} min`,65,35);tag(c,kind==='cooling'?'Cooling interval compressed into six playback seconds':kind==='heat'?'Energy raises temperature without phase change':'Scale / temperature is linked to the controls',70,345)}
  }else if(kind==='gas'){
-  let volume=s.v||20,size=clamp(120+volume*3,150,300);box(c,70,60,size,230,'#e6eee7');c.strokeStyle='#87a995';c.strokeRect(70,60,size,230);let speed=Math.sqrt((s.t||300)/300);for(let i=0;i<30;i++){let xx=70+8+((i*67+time*25*speed*(i%2?1:-1))%(size-16)+(size-16))%(size-16),yy=68+((i*41+time*18*speed*(i%3?1:-1))%214+214)%214;circle(c,xx,yy,4,'#278c7d')}tag(c,'Particles are a qualitative illustration',75,330);tag(c,`T ${fmt(s.t)} K`,85,45);
+  let volume=s.v||20,size=clamp(120+volume*3,150,300),count=Math.round(30*(s.n??1));box(c,70,60,size,230,'#e6eee7');c.strokeStyle='#87a995';c.strokeRect(70,60,size,230);for(let i=0;i<count;i++){const particle=gasParticleFrame(s,i,time);circle(c,particle.x,particle.y,4,'#278c7d')}if(s.n!==undefined)tag(c,`${fmt(s.n)} mol · ${count} representative particles`,75,310);tag(c,'Particles bounce at walls · motion is schematic',75,330);tag(c,`T ${fmt(s.t)} K`,85,45);
  }else if(kind==='lens'&&['power','achromat'].includes(l.id)){
   let power=l.id==='power'?v:s.p1+v,cx=245,cy=185;line(c,30,cy,500,cy,'#a9bdae',1);glassShape(c,s.p1>=0,cx-18,cy,120);glassShape(c,(l.id==='power'?s.p2:v)>=0,cx+18,cy,120);tag(c,`Combined power ${fmt(power)} D`,120,40);
   for(let y of [125,185,245]){arrow(c,40,y,cx,y,'#d2a154');if(power===0)arrow(c,cx,y,480,y,'#117c72');else if(power>0)arrow(c,cx,y,420,cy,'#117c72');else{arrow(c,cx,y,475,y+(y-cy)*.8,'#117c72');line(c,cx,y,120,cy,'#117c72',1,[5,5])}}
@@ -166,9 +193,26 @@ export function drawScene(c,l,s,time=0,view3d=false,hide=false,electrical={}){
  }else if(kind==='nucleus'){
   let n=Math.min(s.a||12,70);for(let i=0;i<n;i++){let a=i*2.39996,r=Math.sqrt(i)*10;circle(c,255+r*Math.cos(a),180+r*Math.sin(a),9,i%2?'#7d9daf':'#d3a05a')}tag(c,'Schematic nucleons · not a microscopic trajectory',45,335);
  }else if(kind==='levels'){
-  for(let n=1;n<=6;n++){let e=-13.6/(n*n),y=70-e/13.6*235;line(c,105,y,425,y,n===(s.n||s.lower)?'#d3a45e':'#9dbbaa',n===(s.n||s.lower)?4:2);tag(c,`n=${n}  ${fmt(e)} eV`,40,y+4)}tag(c,'0 eV · ionization limit',270,45);if(l.id==='transition'){let f=animationFrame(l,s,time),low=s.lower,up=s.lower+s.gap;arrow(c,280,70+235/up**2,280,70+235/low**2,'#d6a253','transition');circle(c,280,70+235/f.level**2,7,'#117c72');if(f.emitted&&!hide){let x=f.photonX,y=70+235/low**2;circle(c,x,y,5,'#d6a253');tag(c,`λ = ${fmt(f.wavelength)} nm`,315,335)}tag(c,'Slowed state sequence · no electron trajectory',45,355)}
+  const transition=l.id==='transition',upper=transition?s.lower+s.gap:6,total=Math.max(6,upper),levelY=n=>295-(n-1)*210/(total-1);
+  tag(c,'0 eV · ionization limit',210,40);line(c,210,52,455,52,'#9dbbaa',1,[5,5]);
+  for(let n=1;n<=total;n++){
+   const selected=transition?(n===s.lower||n===upper):n===s.n,y=levelY(n);
+   line(c,210,y,455,y,selected?'#b2823f':'#9dbbaa',selected?3:1);
+   tag(c,`n = ${n}   ${fmt(-13.6/(n*n))} eV`,40,y+4,selected?'#173f37':'#506b6a');
+  }
+  tag(c,'Level spacing expanded for clarity · not to scale',40,330);
+  if(transition){
+   const frame=animationFrame(l,s,time);
+   arrow(c,280,levelY(upper),280,levelY(s.lower),'#d6a253');
+   const jumpY=levelY(upper)+(levelY(s.lower)-levelY(upper))*frame.jumpProgress;
+   circle(c,280,jumpY,7,'#117c72');
+   if(frame.emitted&&!hide){circle(c,frame.photonX,levelY(s.lower),5,'#d6a253');tag(c,`λ = ${fmt(frame.wavelength)} nm`,315,355)}
+   tag(c,frame.jumpProgress>0&&!frame.emitted?'Jump cue · not a trajectory':'Slowed quantum jump cue',40,355);
+  }
  }else if(kind==='bands'){
-  box(c,70,65,390,70,'#dae6de');box(c,70,220,390,70,'#cadde5');tag(c,'Conduction band',80,55);tag(c,'Valence band',80,315);tag(c,'Forbidden band gap',175,180);for(let i=0;i<10;i++)circle(c,90+i*35,(s.type===0?100:255),6,s.type===0?'#117c72':'#fff',s.type===0);tag(c,s.type===0?'n-type: electron majority':'p-type: hole majority',145,350);
+  const f=animationFrame(l,s,time);box(c,70,65,390,70,'#dae6de');box(c,70,220,390,70,'#cadde5');tag(c,'Conduction band',80,55);tag(c,'Valence band',80,315);tag(c,'Forbidden band gap',175,180);
+  for(let i=0;i<10;i++){const span=350,travel=i*35+f.travel*(i%2?1:-1),phase=((travel%(2*span))+2*span)%(2*span),x=90+(phase<span?phase:2*span);circle(c,x,(s.type===0?100:255)+10*Math.sin(time+i),6,'#117c72',s.type===0)}
+  tag(c,s.type===0?'n-type: electron majority':'p-type: hole majority',145,345);
  }else if(kind==='quarks'){
   circle(c,255,185,95,'#dfebe1');for(let i=0;i<3;i++){let a=i*Math.PI*2/3-Math.PI/2,x=255+50*Math.cos(a),y=185+50*Math.sin(a);circle(c,x,y,24,i<s.up?'#d5a152':'#7c9cae');tag(c,i<s.up?'u':'d',x-4,y+4,'#fff');tag(c,i<s.up?'+2e/3':'−e/3',x-20,y+43)}tag(c,`Net charge ${fmt(v)}e`,190,330);
  }else if(kind==='universe'){

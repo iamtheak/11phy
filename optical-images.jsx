@@ -1,12 +1,17 @@
-import React,{useState,useId} from 'react';
+import React,{useState,useId,createContext,useContext} from 'react';
 import {usePhone} from './responsive.jsx';
 import {chapters,initial} from './content.mjs';
 import {fmt} from './canvas.mjs';
 import {lensOutline,mirrorPoints,svgPath,opticalImage} from './optics.mjs';
 const sample='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 100"><rect width="80" height="100" rx="5" fill="#eef3df"/><circle cx="61" cy="18" r="9" fill="#deb368"/><path d="M0 74 Q18 65 35 74 T80 74 V100 H0Z" fill="#92bdc6"/><path d="M15 70 H65 L54 83 H26Z" fill="#31554a"/><path d="M39 23 V69 H18Z" fill="#e2b268"/><path d="M44 35 L65 67 H44Z" fill="#fdfbf1"/><path d="M42 20 V74" stroke="#31554a" stroke-width="3"/><text x="8" y="20" fill="#31554a" font-size="14" font-family="sans-serif" font-weight="bold">R</text></svg>`);
+const OpticsPictureContext=createContext(null);
+export function OpticsPictureProvider({children}){
+ const picture=useState(sample);
+ return <OpticsPictureContext.Provider value={picture}>{children}</OpticsPictureContext.Provider>;
+}
 function Picture({src,x,y,height=70,sx=1,sy=1,virtual=false,id}){return <g data-testid={id} transform={`translate(${x} ${y}) scale(${sx} ${sy})`} opacity={virtual?.68:1}><image href={src} x={-height*.4} y={-height} width={height*.8} height={height} preserveAspectRatio="xMidYMid meet"/>{virtual&&<rect x={-height*.4} y={-height} width={height*.8} height={height} fill="none" stroke="#876daf" strokeWidth={1/Math.max(.05,Math.abs(sy))} strokeDasharray="4 3"/>}</g>}
 export function OpticsImagePanel({lab,params,hide=false}){
- const [src,setSrc]=useState(sample),[error,setError]=useState(''),[rays,setRays]=useState(true);const clip='optics-'+useId().replace(/:/g,'');
+ const [src,setSrc]=useContext(OpticsPictureContext),[error,setError]=useState(''),[rays,setRays]=useState(true);const clip='optics-'+useId().replace(/:/g,'');
  const depth=lab.id==='depth',plane=lab.id==='plane',f=params.f??15,model=depth?null:opticalImage(lab,params);
  const phone=usePhone(),width=phone?430:840,cx=phone?215:400,reach=phone?130:300;
  const outside=model&&!model.infinite&&Math.abs(model.v)>10000;

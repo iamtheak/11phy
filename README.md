@@ -46,6 +46,10 @@ Source headings are preserved with a clarification: Chapter 25 also covers semic
 
 ## Direct manipulation
 
+The quark lab also supports dragging its three valence quarks within a schematic particle boundary. Arrow keys move a focused quark; Home resets their positions. Rearrangement leaves composition and total charge unchanged; the existing up-quark control changes composition. This is a teaching arrangement, not a strong-force simulation.
+
+Heating and cooling show temperature-linked liquid colors and a readable temperature gauge. In Heating a substance, choose 4200 J/(kg·K), an 80 K rise, and Play for a water boiling cue at 100 °C from a 20 °C reference. Bubbles are schematic at standard pressure; the existing constant-specific-heat calculation excludes vaporization. Cooling colors follow the current replay temperature. Desktop headings respond subtly to the pointer; reduced motion disables this decorative movement.
+
 React 19 manages the interface and state; Canvas 2D and Pretext render analytical scenes and graphs. SVG handles overlay the Canvas with the same coordinate system. Vector tips, projectile launch velocity, spring mass, optical objects, refraction incidence, charge separation, torque, capacitor spacing and flux normal can be dragged by mouse or touch. Arrow keys change magnitude; Shift plus arrows changes direction where supported. The spring mass and projectile launch handles start animation on release.
 
 The mass drop sandbox at `#drop` uses exact constant-gravity equations, stops at the ground, and shows height, speed, fall time and energy. Students can lift and release the mass or use the drop button; keyboard arrows lift and Enter drops. There is no air resistance or bounce simulation. Impact kinetic energy is displayed just before contact. Existing browser notes and progress keep the same storage key.
@@ -53,6 +57,8 @@ The mass drop sandbox at `#drop` uses exact constant-gravity equations, stops at
 Tests mount React with LinkeDOM and dispatch pointer, keyboard, input and form events. They verify all laboratory/practice routes, source readers/notebooks, saved notes, animation frame movement and cancellation, drop landing, snapping, bounds, mass-independent acceleration and conserved mechanical energy. Browser visual QA is still unavailable in this environment.
 
 ## Animation replays
+
+Eight additional study replays cover thermal equilibrium, melting ice, linear and volume expansion, constrained thermal stress, wire extension, tensile stress, and semiconductor majority carriers. Equilibrium temperatures conserve energy throughout the illustrative approach. Melting stops at the selected fraction at 0 °C. Expansion and elastic loading ramp to the selected result over five illustrative seconds, then hold briefly; deformation is magnified. The constrained rod stays fixed while compressive force cues grow. Semiconductor carriers move schematically within their bands; no microscopic drift velocity is inferred. These replays share paused startup, play/pause, speed, restart, seeking and hidden-tab behavior with the other labs.
 
 Fifteen additional labs animate acceleration, incline friction, work along a prescribed path, energy during uniform acceleration, perfectly inelastic collisions, cooling, conduction, radiation, four lens/mirror constructions, refraction/critical-angle ray paths and hydrogen photon emission. Every animated lab has Play/Pause/Restart, 0.25×/0.5×/1×/2× playback speed and a replay scrubber. Animations start paused, pause in hidden tabs and release their frame callbacks on unmount.
 

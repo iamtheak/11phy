@@ -8,7 +8,7 @@ Laboratories operate as tools; source chapters are reading surfaces. A chapter t
 
 ## Palette and spacing
 
-Ink #173f37; muted text #52675b; accent #176c58; gold #946a2f; paper #fcfcf8; line #d8e2d5. Interface text and placeholder palette pairs were checked at >=4.5:1. Use semantic CSS tokens and a 4px base, with 8, 12, 16, 24, 32, 48 and 64px intervals. Tight label/control groups; generous spacing between different study tasks.
+Ink #263f38; muted text #59685f; accent #356b59; gold #946a2f; paper #faf9f5; line #dde3da. Warm off-white surfaces and restrained green accents support sustained study. Use semantic CSS tokens and a 4px base, with 8, 12, 16, 24, 32, 48 and 64px intervals. Tight label/control groups; generous spacing between different study tasks.
 
 ## Surfaces and navigation
 
@@ -25,3 +25,9 @@ CSS parsed successfully and selected semantic contrast pairs passed. Mounted Rea
 ## Physics playback controls
 
 Animated laboratories start paused. Play is the primary action, with Restart next to it; speed and replay position live below the toolbar in one compact control group. Replay position changes pause the run. Changing physical parameters resets it. Current-state captions use tabular numbers and state any time compression or schematic motion explicitly. Graph callbacks are stable during playback so unchanged parameter graphs are not redrawn on every frame.
+
+## Calm study refinement
+
+Reference: https://visualtextbook.com/ and its emphasis on clear reading and focused interactive concepts. Preserve the existing serif headings, curriculum, routes and physics. Sidebar sandbox shortcuts use quiet backgrounds; selected chapters and actions retain explicit feedback. Reading has generous leading, and phone content has 20px side margins. Lab controls use warm neutral surfaces, reserving pale green for the scene and equation. Color feedback takes 180ms; the navigation drawer uses a 280ms ease-out transition. Reduced motion disables both. Physics and direct manipulation remain immediate.
+
+All six regression suites and the production build pass after this refinement. The mechanical design detector reports only the existing Inter font-stack warning; the established typography is retained. Browser tools reported no available browsers, so rendered desktop and mobile visual QA remains unverified.
